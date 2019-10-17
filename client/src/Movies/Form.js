@@ -1,22 +1,24 @@
 import React from 'react';
 import {Formik, Form, Field} from 'formik';
-import * as yup from 'yup';
+// import * as yup from 'yup';
 import axios from 'axios';
 
-const validationSchema = yup.object().shape({
-    title: yup.string()
-        .required('A title is required'),
-    director: yup.string()
-        .required('required field'),
-    metascore: yup.number()
-        .max(3, 'must be less than 3 characters')
-        .required('required field'),
-    stars: yup.string()
-        .required('Enter a star'),
-})
+// const validationSchema = yup.object().shape({
+//     title: yup.string()
+//         .required('A title is required'),
+//     director: yup.string()
+//         .required('required field'),
+//     metascore: yup.number()
+//         .max(3, 'must be less than 3 characters')
+//         .required('required field'),
+//     stars: yup.string()
+//         .required('Enter a star'),
+// })
 
 function EditForm(props){
     const {currentMovie} = props;
+    debugger
+
     let initialValueForm;
     
     if (currentMovie){
@@ -31,11 +33,11 @@ function EditForm(props){
             title: '',
             director: '',
             metascore: '',
-            stars: ''
+            stars: '',
         }
     }
 
-    const onSubmit = (formValues, action) => {
+    const submit = (formValues, action) => {
         if (currentMovie !== undefined){
             edit(formValues, action)
         } else {
@@ -51,8 +53,9 @@ function EditForm(props){
        const params = {...formValues, id: currentMovie.id}
        axios.put(`http://localhost:5000/api/movies/${currentMovie.id}`, params)
         .then(() => {
+            debugger
             action.resetForm();
-            props.history.replace('/')
+            props.history.replace("/")
         })
    }
 
@@ -73,27 +76,15 @@ function EditForm(props){
     return (
         <Formik
         initialValues = {initialValueForm}
-        onSubmit = {onSubmit}
-        validationSchema = {validationSchema}
+        onSubmit = {submit}
+        // validationSchema = {validationSchema}
         render = {props => {
             return (
                 <Form>
-                    <div>
                     <Field type='text' name='title' placeholder='title'/>
-                    </div>
-
-                    <div>
                     <Field type='text' name='director' placeholder='director'/>
-                    </div>
-
-                    <div>
                     <Field type='text' name='metascore' placeholder='metascore'/>
-                    </div>
-
-                    <div>
-                    <Field type='text' name='stars' placeholder='first star'/>
-                    </div>  
-
+                    <Field type='text' name='stars' placeholder='first star'/>  
                     <button type='submit'>Submit</button>
                 </Form>
             )
