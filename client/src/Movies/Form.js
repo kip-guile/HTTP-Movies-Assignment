@@ -1,16 +1,7 @@
 import React from 'react';
 import {Formik, Form, Field} from 'formik';
 import * as yup from 'yup';
-
-
-const initialValueForm = {
-    title: '',
-    director: '',
-    metascore: '',
-    star1: '',
-    star2: '',
-    star3: '',
-}
+import axios from 'axios';
 
 const validationSchema = yup.object().shape({
     title: yup.string()
@@ -20,16 +11,64 @@ const validationSchema = yup.object().shape({
     metascore: yup.number()
         .max(3, 'must be less than 3 characters')
         .required('required field'),
-    star1: yup.string()
-        .required('Enter a star'),
-    star2: yup.string()
-        .required('Enter a star'),
-    star3: yup.string()
+    stars: yup.string()
         .required('Enter a star'),
 })
 
 function EditForm(props){
-    const {onSubmit} = props;
+    const {currentMovie} = props;
+    let initialValueForm;
+    
+    if (currentMovie){
+        initialValueForm = {
+            title: currentMovie.title,
+            director: currentMovie.director,
+            metascore: currentMovie.metascore,
+            stars: currentMovie.stars
+        }
+    } else {
+        initialValueForm = {
+            title: '',
+            director: '',
+            metascore: '',
+            stars: ''
+        }
+    }
+
+    const onSubmit = (formValues, action) => {
+        if (currentMovie !== undefined){
+            edit(formValues, action)
+        } else {
+            add(formValues, action)
+        }
+    }
+
+
+   const edit = (formValues, action) => {
+       if(typeof(formValues.stars) === 'string'){
+           formValues.stars = formValues.stars.split(',')
+       }
+       const params = {...formValues, id: currentMovie.id}
+       axios.put(`http://localhost:5000/api/movies/${currentMovie.id}`, params)
+        .then(() => {
+            action.resetForm();
+            props.history.replace('/')
+        })
+   }
+
+   const add = (formValues, action) => {
+       if(typeof(formValues.stars) === 'string'){
+           formValues.stars = formValues.stars.split(',')
+       }
+       axios.post('http://localhost:5000/api/movies/', formValues)
+        .then(() => {
+            action.resetForm();
+            props.history.replace('/')
+        })
+        .catch(err => {
+            alert(err.message)
+        })
+   }
 
     return (
         <Formik
@@ -52,16 +91,10 @@ function EditForm(props){
                     </div>
 
                     <div>
-                    <Field type='text' name='star1' placeholder='first star'/>
-                    </div>
+                    <Field type='text' name='stars' placeholder='first star'/>
+                    </div>  
 
-                    <div>
-                    <Field type='text' name='star2' placeholder='second star'/>
-                    </div>
-
-                    <div>
-                    <Field type='text' name='star3' placeholder='third star'/>
-                    </div>   
+                    <button type='submit'>Submit</button>
                 </Form>
             )
         }}

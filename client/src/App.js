@@ -7,6 +7,7 @@ import EditForm from "./Movies/Form";
 
 const App = () => {
   const [savedList, setSavedList] = useState([]);
+  const [currentMovie, setCurrentMovie] = useState({})
 
   const addToSavedList = movie => {
     setSavedList([...savedList, movie]);
@@ -19,12 +20,22 @@ const App = () => {
       <Route 
         path = '/update-movie/:id'
         render={props => {
-          return <EditForm/>
+          return <EditForm {...props} currentMovie={currentMovie}/>
         }}/>
       <Route
         path="/movies/:id"
         render={props => {
-          return <Movie {...props} addToSavedList={addToSavedList} />;
+          return <Movie {...props}
+           currentMovie={currentMovie} 
+           setCurrentMovie={setCurrentMovie} 
+           addToSavedList={addToSavedList} 
+           />;
+        }}
+      />
+      <Route
+        path="/add-movie"
+        render={props => {
+          return <EditForm {...props}/>;
         }}
       />
     </>
